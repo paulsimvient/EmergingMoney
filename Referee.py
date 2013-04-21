@@ -8,6 +8,7 @@ from __future__ import division
 import math
 import time
 import random
+from random import choice
 import collections
 import csv
 from operator import itemgetter
@@ -15,6 +16,7 @@ import Agents as ag
 import matplotlib.pyplot as plt	# to enable plot of histogram
 import numpy as np
 import constants as c
+import Tkinter
 
 #This list will be used to keep track of goods that agents recieve...
 #..though it is not their consumption goods, i.e. goods agents...
@@ -52,13 +54,10 @@ agentList = [ag.simpleAgents() for count in xrange(c.numOfAgents)]
 # And we give each agents agent1 list of consumption good,..
 # ...production good and carry good. Initially the production...
 # ...good and carry good are the same
-
-countType=0
-for i in agentList:
-    while countType<=c.numOfAgents-1:
-        agentList[countType].goods=types[countType]
-        countType+=1
-
+ 
+for agent in agentList: 
+    agent.goods= choice(types)  
+       
 
 # this function defines one round of play
 
@@ -91,7 +90,6 @@ def playRound(agent1,agent2):
                 memory_goodTraded=goodsTraded
 
             past_trades=memory_goodTraded.count(agent2.goods[c.held_good])
-
 
             total_trades=len(goodsTraded)
 
@@ -184,7 +182,7 @@ def playRound(agent1,agent2):
 
     if final_decision(agent1,agent2)==True:
 
-# if the good one agnet carries is the other agents consumption good..
+# if the good one agent carries is the other agents consumption good..
 #.. and vice versa
 
         if  agent1.goods[c.consumed_good]==agent2.goods[c.held_good] and agent1.goods[c.held_good]==agent2.goods[c.consumed_good]:
@@ -271,9 +269,7 @@ def playGame():
 
 
 playGame()
-
 #collect data
-
 
 list_goods=list(xrange(c.numOfGoods))
 strList_goods=[]
@@ -288,24 +284,11 @@ for i in strList_goods:
 
 #data on money
 plt.scatter(list_goods,listofMoney)
-plt.title("100 Good Economy - 100,000 Rounds")
+
+buf = "%d Good Economy - %d rounds" % (c.numOfGoods, c.numofRounds)
+plt.title(buf)
 plt.xlabel("Goods")
 plt.ylabel("Number of times a good is used as money")
 plt.show()
 
- 
-
-'''
-plt.scatter(list_goods,freq_goods)
-plt.show()
-
-listTrades=[]
-
-for i in allTrades:
-    g=allTrades.count(i)
-    listTrades.append((i,g))
-
-print listTrades
-print allTrades
-'''
-
+  
