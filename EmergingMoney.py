@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt	# to enable plot of histogram
 import numpy as np
 import constants as c
 import Tkinter
-
+import copy
 
 class EmergingMoney():
     
@@ -39,11 +39,18 @@ class EmergingMoney():
         
         #array of all trades
         self.allTrades=[]
-        
+         
         #array of goods traded
         self.goodsTraded=[]
         
-        # We generate agent1 list of agents
+        #cost list
+        self.costList=[]
+        
+        #list of costs assigned to each agent
+        for i in range(0, c.numOfGoods):
+            self.costList.append(random.uniform(0,c.max_fixedCost))
+         
+         # We generate agent1 list of agents
         self.agentList = [ag.simpleAgents() for count in xrange(c.numOfAgents)]
         
         self.listofMoney=[0]*(c.numOfGoods)
@@ -60,7 +67,12 @@ class EmergingMoney():
         # ...good and carry good are the same
         for agent in self.agentList: 
             agent.goods= choice(self.types)  
-            
+         
+        for i in self.agentList:
+            i.cost = copy.deepcopy(self.costList) 
+                
+        print self.agentList[0].cost
+
 
     # this function defines one round of play
     
@@ -108,8 +120,11 @@ class EmergingMoney():
                 sampleCost=np.mean(sample_costList)
     
                 # the agent also computes the cost of trading now
-    
-                costNow=(agent1.cost[int(agent2.goods[c.held_good])]+agent2.cost[int(agent1.goods[c.held_good])])/2
+                 
+                a1 = int(agent2.goods[c.held_good])
+                a2 = int(agent1.goods[c.held_good])
+            
+                costNow=(agent1.cost[a1]+agent2.cost[a2])/2
                 expected_costPartner=sampleCost
                 expected_costTomorrow=(agent1.cost[0]+expected_costPartner)/2
     
@@ -128,7 +143,7 @@ class EmergingMoney():
                     prob=past_trades/total_trades
                     tradeValue_NoEat=prob*(1-expected_costTomorrow)-costNow
                     tradeValue=tradeValue_NoEat
-                    return 1
+                    #return 1 
                     return tradeValue
     
     
@@ -201,12 +216,14 @@ class EmergingMoney():
                 agent1.result(agent1.goods[c.consumed_good],
                               agent2.goods[c.held_good],
                               agent1.goods[c.held_good],
-                              value_trade(agent1,agent2))
+                              value_trade(agent1,agent2),
+                              self.costList)
                 
                 agent2.result(agent2.goods[c.consumed_good],
                               agent1.goods[c.held_good],
                               agent2.goods[c.held_good],
-                              value_trade(agent2,agent1))
+                              value_trade(agent2,agent1),
+                              self.costList)
     
     
             elif agent1.goods[c.consumed_good]==agent2.goods[c.held_good] and agent1.goods[c.held_good]!=agent2.goods[c.consumed_good]:
@@ -220,12 +237,14 @@ class EmergingMoney():
                 agent1.result(agent1.goods[c.consumed_good],
                               agent2.goods[c.held_good],
                               agent1.goods[c.held_good],
-                              value_trade(agent1,agent2))
+                              value_trade(agent1,agent2),
+                              self.costList)
                 
                 agent2.result(agent1.goods[c.held_good],
                               agent1.goods[c.held_good],
                               agent2.goods[c.held_good],
-                              value_trade(agent2,agent1))
+                              value_trade(agent2,agent1),
+                              self.costList)
     
                 # since agent "agent2" is recieving agent1 good which is not its...
                 #... consumption good, we call this the use of money.
@@ -240,12 +259,14 @@ class EmergingMoney():
                 agent1.result(agent2.goods[c.held_good],
                               agent2.goods[c.held_good],
                               agent1.goods[c.held_good],
-                              value_trade(agent1,agent2))
+                              value_trade(agent1,agent2),
+                              self.costList)
                 
                 agent2.result(agent2.goods[c.consumed_good],
                               agent1.goods[c.held_good],
                               agent2.goods[c.held_good],
-                              value_trade(agent2,agent1))
+                              value_trade(agent2,agent1),
+                              self.costList)
                 
                 self.listofMoney[int(agent2.goods[c.held_good])]+=1
     
@@ -258,7 +279,8 @@ class EmergingMoney():
                 agent1.result(agent2.goods[c.held_good],
                               agent2.goods[c.held_good],
                               agent1.goods[c.held_good],
-                              value_trade(agent1,agent2))
+                              value_trade(agent1,agent2),
+                              self.costList)
                 
                 agent2.result(agent1.goods[c.held_good],
                               agent1.goods[c.held_good],
@@ -273,7 +295,7 @@ class EmergingMoney():
 
     def playGame(self):
          
-         for i in range(c.numofRounds):
+        for i in range(c.numofRounds):
              
             #randomly pick two agents from the list of agents
             players=random.sample(self.agentList,2)
@@ -283,6 +305,8 @@ class EmergingMoney():
     
             # ask the two players to play agent1 round of the game
             self.playRound(p1,p2)
+        
+        print self.agentList[0].cost
         
     def get_goods_money(self): 
         #collect data
