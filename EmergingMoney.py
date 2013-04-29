@@ -71,11 +71,18 @@ class EmergingMoney():
         for i in self.agentList:
             i.cost = copy.deepcopy(self.costList) 
                 
-        print self.agentList[0].cost
+        #register callback funciton if necessary
+        self.callback_function = None
 
-
+    #store callback function
+    def register(self,cb):
+        self.callback_function = cb
+        
+    def callback(self):
+        if self.callback_function != None:
+            self.callback_function()
+        
     # this function defines one round of play
-    
     def playRound(self, agent1,agent2):
     
         # this function give the value for agent "agent1" of trading with agents "agent2"
@@ -285,7 +292,8 @@ class EmergingMoney():
                 agent2.result(agent1.goods[c.held_good],
                               agent1.goods[c.held_good],
                               agent2.goods[c.held_good],
-                              value_trade(agent2,agent1))
+                              value_trade(agent2,agent1),
+                              self.costList)
     
     
                 self.listofMoney[int(agent1.goods[c.held_good])]+=1
@@ -305,8 +313,10 @@ class EmergingMoney():
     
             # ask the two players to play agent1 round of the game
             self.playRound(p1,p2)
-        
-        print self.agentList[0].cost
+            
+            #callback function if necessary
+            self.callback()        
+      
         
     def get_goods_money(self): 
         #collect data
