@@ -24,8 +24,7 @@ class agentBase(object):
         self.goods=[]
         self.trade_History = []
         self.utilityHistory=[]
-        self.recieved = []
-        self.given = []
+        self.cost = []
 
 #create a list to store the number of trades an agent does in...
 #...each type of good
@@ -33,13 +32,15 @@ class agentBase(object):
         self.trades=[0]*c.numOfGoods
         self.recieved=[0]*c.numOfGoods
         self.given=[0]*c.numOfGoods
+        self.money=[0]*c.numOfGoods
 
 #create a list to store the cost for each agent to be able...
 #... to tell quality of goods
 
-        self.cost = []
-        
-        
+
+
+
+
 
 # cost of indentifying any given good varies across agents...,
 #...and any given agent has different cost of indentifying different..
@@ -54,7 +55,8 @@ class agentBase(object):
 # result is information that is return by the referee to the agent,...
 #...the agent stores this information
 
-    def result(self, carry, recieved, given, utility, costList):
+    def result(self, carry, recieved, given, utility, costList, money):
+        
         self.goods[c.held_good]=carry
 
         self.trades[int(recieved)]=+1
@@ -65,9 +67,17 @@ class agentBase(object):
 
         self.trade_History.append((recieved,given))
         self.utilityHistory.append(utility)
-  
-        self.cost[int(recieved)]=(costList[int(recieved)]/2) + (costList[int(recieved)]/(2*(self.recieved[int(recieved)]+1)))
-   
+
+        self.cost[int(recieved)]=(costList[int(recieved)]/2) + (costList[int(recieved)]/(2*((self.recieved[int(recieved)])**c.alpha+1)))
+
+
+        if money!= None: 
+            _money = int(money)
+            _consumed = int(self.goods[c.consumed_good])
+            if _money == _consumed:
+                print "you blew it"
+                
+            self.money[_money]+=1 
 
 class simpleAgents(agentBase):
      def __init__(self):
