@@ -63,8 +63,8 @@ def init_plot():
     slist.append(Indicator(master=root, label='Number of Goods', value=10, f = 0, t = 100))
     slist.append(Indicator(master=root, label='Number of Rounds (per run)', value=1000, f = 0, t = 1000000))
     slist.append(Indicator(master=root, label='Memory', value=10, f = 10, t = 100))
-    slist.append(Indicator(master=root, label='Alpha', value=0.5, f = 0, t = 1))
-    slist.append(Indicator(master=root, label='maxCost', value=1, f = 0, t = 1))
+    slist.append(Indicator(master=root, label='Alpha %', value=0.5, f = 0, t = 100))
+    slist.append(Indicator(master=root, label='maxCost %', value=1, f = 0, t = 100))
 
 
 
@@ -118,13 +118,14 @@ def setCallback():
     v_1 = int(slist[2].var.get())
     v_2 = int(slist[3].var.get())
     v_3 = int(slist[4].var.get())
-    v_4 = int(slist[5].var.get())
-    v_6 = int(slist[6].var.get())
+    #v_4 = int(slist[5].var.get())
+    v_5 = (slist[5].var.get()/100.0)
+    v_6 = (slist[6].var.get()/100.0)
     numRuns = int(slist[0].var.get())
 
     # run and play
     for i in range(0,numRuns):
-        em = EmergingMoney(v_0, v_1, v_2, v_3,v_4,v_6)
+        em = EmergingMoney(v_0, v_1, v_2, v_3,v_5,v_6)
 
         #set if real time true
         if realTime == True:

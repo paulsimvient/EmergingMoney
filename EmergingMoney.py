@@ -32,6 +32,8 @@ class EmergingMoney():
         c.numOfGoods = ng
         c.numofRounds = nr
         c.memory=mem
+        c.alpha = al
+        c.max_fixedCost = maxCost
 
         self.listofMoney=[0]*(c.numOfGoods)
 
@@ -72,7 +74,7 @@ class EmergingMoney():
 
         #list of costs assigned to each agent
         for i in range(0, c.numOfGoods):
-            self.costList.append(.25)
+            self.costList.append(random.uniform(0,c.max_fixedCost))
 
          # We generate a list of agents
         self.agentList = [ag.simpleAgents() for count in xrange(c.numOfBaseAgents)]
@@ -413,7 +415,7 @@ class EmergingMoney():
        # print "trade costs end", self.tradeCosts
          
          
-        #print "individual money endand size", len(self.agentList)
+        print "individual money endand size", len(self.agentList)
         for i in self.agentList:
             print i.money, i.goods
 
