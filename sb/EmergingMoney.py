@@ -22,7 +22,7 @@ import copy
 
 class EmergingMoney():
 
-    def __init__(self, ng = c.numOfGoods, nr = c.numofRounds, mem = c.memory, al=c.alpha, maxCost=c.max_fixedCost):
+    def __init__(self, na = c.numOfBaseAgents, ng = c.numOfGoods, nr = c.numofRounds, mem = c.memory, al=c.alpha, maxCost=c.max_fixedCost):
 
         #This list will be used to keep track of goods that agents recieve...
         #..though it is not their consumption goods, i.e. goods agents...
@@ -71,14 +71,11 @@ class EmergingMoney():
             self.tradeCosts[x]=list()
 
 
-        #print "fixed costs", c.max_fixedCost
-        
+
         #list of costs assigned to each agent
         for i in range(0, c.numOfGoods):
             self.costList.append(random.uniform(0,c.max_fixedCost))
 
-        print self.costList
-        
          # We generate a list of agents
         self.agentList = [ag.simpleAgents() for count in xrange(c.numOfBaseAgents)]
 
@@ -101,7 +98,7 @@ class EmergingMoney():
         for i in self.agentList:
             i.cost = copy.deepcopy(self.costList)
             
-        #print "costs", self.costList
+        #print "trade costs beginning", self.tradeCosts
 
         #register callback funciton if necessary
         self.callback_function = None
@@ -418,9 +415,9 @@ class EmergingMoney():
        # print "trade costs end", self.tradeCosts
          
          
-        #print "individual money endand size", len(self.agentList)
-       # for i in self.agentList:
-           # print i.money, i.goods
+        print "individual money endand size", len(self.agentList)
+        for i in self.agentList:
+            print i.money, i.goods
 
 
     def get_goods_money(self):
