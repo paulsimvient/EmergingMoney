@@ -95,17 +95,23 @@ def visualize():
          
         a.set_xlabel('number trials')
         a.set_ylabel('number trades')    
-        
-      
-             
+         
+        darray = {}
         for r in range(0,c.numOfGoods):
+            darray[r] = em.costList[r]
+         
+        l_items = []   
+        for w in sorted(darray, key=darray.get, reverse=True):
+            l_items.append(w)       
+        
+        for r in range(0, len(l_items)):
             y = [] 
             x = []
             for i in range(0, len(trades_per_interval)):
                 x.append(i) 
-                y.append(trades_per_interval[i][r])
+                y.append(trades_per_interval[i][l_items[r]])
                  
-            a.plot(x,y, label='%.4f' % em.costList[r]) 
+            a.plot(x,y, label='%.4f' % em.costList[l_items[r]]) 
         
         a.legend(loc='upper left') 
          
