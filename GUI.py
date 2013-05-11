@@ -4,6 +4,8 @@ from random import *
 from Tkinter import *
 from EmergingMoney import *
 from constants import *
+from matplotlib.font_manager import FontProperties
+
 
 import copy
 
@@ -36,9 +38,14 @@ sort = False
 #run in real time
 realTime = False
 
+#legend on
+legend_on = False
+
 #graph over time
 graphOverTime = False
  
+fontP = FontProperties()
+fontP.set_size('small') 
 
 
 class Indicator:
@@ -69,7 +76,7 @@ def init_plot():
     #slist.append(Indicator(master=root, label='Number Runs', value=1, f = 1, t = 1000000)) 
     slist.append(Indicator(master=root, label='Number of Goods', value=10, f = 0, t = 100))
     slist.append(Indicator(master=root, label='Number of Rounds (per run)', value=1000, f = 0, t = 1000000))
-    slist.append(Indicator(master=root, label='Memory', value=10, f = 10, t = 100))
+    slist.append(Indicator(master=root, label='Memory', value=10, f = 1, t = 100))
     slist.append(Indicator(master=root, label='Alpha %', value=0.5, f = 0, t = 100))
     slist.append(Indicator(master=root, label='maxCost %', value=1, f = 0, t = 100))
 
@@ -113,7 +120,9 @@ def visualize():
                  
             a.plot(x,y, label='%.4f' % em.costList[l_items[r]]) 
         
-        a.legend(loc='upper left') 
+        #if the legend is on
+        if legend_on == True:
+            a.legend(loc='upper left', prop = fontP) 
          
                 
     canvas.show()
@@ -149,6 +158,11 @@ def graphTime():
     global graphOverTime
     graphOverTime = not graphOverTime
     visualize()
+
+def setLegend():
+    global legend_on
+    legend_on = not legend_on
+    visualize()    
     
 def setCallback():
 
@@ -211,7 +225,8 @@ cb.pack(side=Tk.RIGHT)
 #c.pack(side=Tk.RIGHT)
 cb = Checkbutton(master=root, text="Plot trades Over Time", command = graphTime)
 cb.pack(side=Tk.RIGHT)
- 
+cb = Checkbutton(master=root, text="Legend", command = setLegend)
+cb.pack(side=Tk.TOP)
 
 init_plot()
  
