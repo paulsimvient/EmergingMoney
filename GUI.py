@@ -45,7 +45,7 @@ legend_on = False
 graphOverTime = False
  
 fontP = FontProperties()
-fontP.set_size('small') 
+fontP.set_size('xx-small') 
 
 
 class Indicator:
