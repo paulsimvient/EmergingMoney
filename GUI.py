@@ -216,7 +216,7 @@ def runParameterSpace():
     
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
-            em = EmergingMoney(numGoods, numTrials, j, i, maxCost)
+            em = EmergingMoney(numGoods, numTrials, i, (j*.10), maxCost)
             em.register(regcb)
             moneyHappens = -1
             em.playGame()
@@ -228,7 +228,7 @@ def runParameterSpace():
 
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
-            em = EmergingMoney(numGoods, numTrials, j, i, maxCost)
+            em = EmergingMoney(numGoods, numTrials, j, (i*.10), maxCost)
             em.register(regcb)
             moneyHappens = -1
             em.playGame()
@@ -242,7 +242,7 @@ def runParameterSpace():
 
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
-            em = EmergingMoney(numGoods, numTrials, memory, i, j)
+            em = EmergingMoney(numGoods, numTrials, memory, (i*.10), (j*.10))
             em.register(regcb)
             moneyHappens = -1
             em.playGame()
@@ -254,7 +254,7 @@ def runParameterSpace():
                
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
-            em = EmergingMoney(numGoods, numTrials, memory, j, i)
+            em = EmergingMoney(numGoods, numTrials, memory, (j*.10), (i*.10))
             em.register(regcb)
             moneyHappens = -1
             em.playGame()
@@ -265,7 +265,7 @@ def runParameterSpace():
     
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
-            em = EmergingMoney(numGoods, numTrials, i, alpha, j)
+            em = EmergingMoney(numGoods, numTrials, i, alpha, (j*.10))
             em.register(regcb)
             moneyHappens = -1
             em.playGame()
@@ -278,7 +278,7 @@ def runParameterSpace():
                
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
-            em = EmergingMoney(numGoods, numTrials, j, alpha, i)
+            em = EmergingMoney(numGoods, numTrials, j, alpha, i*.10)
             em.register(regcb)
             moneyHappens = -1
             em.playGame()
