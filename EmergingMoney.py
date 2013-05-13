@@ -47,7 +47,8 @@ class EmergingMoney():
         self.goodsTraded=[]
 
         #cost list
-        self.costList=[]
+        self.costList_unchanging=[]
+         
 
         # create a dictionary to store the cost of trading goods, the structure will be of the following kind
         # {(0,1):[0.1,0.02,0.5],(0,2):[0.1,0.6,0.02],(1,0):[0.5,0.3]}
@@ -75,8 +76,12 @@ class EmergingMoney():
         
         #list of costs assigned to each agent
         for i in range(0, c.numOfGoods):
-            self.costList.append(random.uniform(0,c.max_fixedCost))
- 
+            self.costList_unchanging.append(random.uniform(0,c.max_fixedCost))
+
+   
+        self.costList= copy.deepcopy(self.costList_unchanging)
+
+                
         
          # We generate a list of agents
         self.agentList = [ag.simpleAgents() for count in xrange(c.numOfBaseAgents)]
@@ -98,7 +103,7 @@ class EmergingMoney():
             self.agentList[i].goods= self.types[i]
 
         for i in self.agentList:
-            i.cost = copy.deepcopy(self.costList)
+            i.cost = self.costList
             
         #print "costs", self.costList
 
@@ -109,12 +114,12 @@ class EmergingMoney():
     def register(self,cb):
         self.callback_function = cb
 
-    def callback(self):
+    def callback(self, var):
         if self.callback_function != None:
-            self.callback_function()
+            self.callback_function(var)
 
     # this function defines one round of play
-    def playRound(self, agent1,agent2):
+    def playRound(self, agent1, agent2):
 
 
         # records the memory of past trades the agent has. The agents look at all combinations of past trades, record the last n she remembers
@@ -151,8 +156,10 @@ class EmergingMoney():
             if b<c.memory:
                 return random.uniform(0,1)
             else:
-                if b == 0:
+                #this shouldn't hapen
+                if b==0:
                     return 0
+                    
                 prob_tradeNextPeriod=PastTrades/b
                 return prob_tradeNextPeriod
  
@@ -211,7 +218,7 @@ class EmergingMoney():
                 val=1-CostTradingNext(agent1,agent2,True)
                 
                 #time discount factor
-                prob_val = (prob*val) 
+                prob_val = (prob*val)
             
                 tradeValue= prob_val-CostNow(agent1,agent2)
                 return tradeValue
@@ -224,7 +231,7 @@ class EmergingMoney():
             val=1-CostTradingNext(agent1,agent2,False)
             
             #time discount factor
-            prob_val = (prob*val) 
+            prob_val = (prob*val)
             No_tradeValue=prob_val
            
             return No_tradeValue
@@ -269,21 +276,55 @@ class EmergingMoney():
  
             if both_agents_want_to_trade(agent1,agent2)==True:
                 utility_now = 1-CostNow(agent1, agent2)
-
-                                 
+                
+                #append the list of traded goods, which keeps track of couples trades
+                self.allTrades.append((a1_held ,a2_held)) 
+                
+                                    # append the list of traded goods which keeps track of...
+                
+                                    #...individual goods traded
+                self.goodsTraded.append(a1_held)
+                self.goodsTraded.append(a2_held)
+                                    
                 # if the good one agent carries is the other agents consumption good..
                 #.. and vice versa
+                #print 'first', self.costList
+                
+                a1_numberofTrades=self.goodsTraded.count(int(a1_held))
+                a2_numberofTrades=self.goodsTraded.count(int(a2_held))
+                
+                
+                a1_oldCost=self.costList_unchanging[int(a1_held)]
+                a2_oldCost=self.costList_unchanging[int(a2_held)]
+                
+               
+                
+                a1_constantCost=a1_oldCost/2.0
+                a1_variableCost=a1_oldCost/(2.0*(a1_numberofTrades**c.alpha+1))
+             
+                a1_newCost=a1_constantCost+a1_variableCost
+                
+                
+               
+
+                a2_constantCost=a2_oldCost/2.0
+                a2_variableCost=a2_oldCost/(2.0*(a2_numberofTrades**c.alpha+1))
+                
+                a2_newCost=a2_constantCost+a2_variableCost
+                
+                                     
+                self.costList[int(a1_held)]=a1_newCost
+                self.costList[int(a2_held)]=a2_newCost
+                
+              
+                #for i in self.agentList:
+                    #i.cost=self.costList
+                    
+
 
                 if  a1_consumed==a2_held and a1_held ==a2_consumed:
                     
-                    #append the list of traded goods, which keeps track of couples trades
-                    self.allTrades.append((a1_held ,a2_held)) 
-
-                    # append the list of traded goods which keeps track of...
-
-                    #...individual goods traded
-                    self.goodsTraded.append(a1_held)
-                    self.goodsTraded.append(a2_held)
+                    
 
 
                     # agent agent1 and agent2 will update its data
@@ -307,10 +348,7 @@ class EmergingMoney():
 
                 elif a1_consumed==a2_held and a1_held !=a2_consumed:
 
-                    self.allTrades.append((a1_held,
-                                      a2_held)) 
-                    self.goodsTraded.append(a1_held )
-                    self.goodsTraded.append(a2_held)
+                    
 
                     agent1.result(a1_produce ,
                                   a2_held,
@@ -336,9 +374,7 @@ class EmergingMoney():
                     #agent 2 gets consumption good but agent 1 does not
 
                 elif a1_consumed!=a2_held and a1_held ==a2_consumed:
-                    self.allTrades.append((a1_held ,a2_held))
-                    self.goodsTraded.append(a1_held )
-                    self.goodsTraded.append(a2_held)
+                   
 
 
 
@@ -366,10 +402,7 @@ class EmergingMoney():
 
                 elif a1_consumed!=a2_held and a1_held !=a2_consumed:
 
-                    self.allTrades.append((a1_held ,a2_held))
-                    self.goodsTraded.append(a1_held )
-                    self.goodsTraded.append(a2_held)
-
+                   
                     agent1.result(a2_held,
                                   a2_held,
                                   a1_held,
@@ -413,7 +446,7 @@ class EmergingMoney():
             self.playRound(p1,p2)
 
             #callback function if necessary
-            self.callback()
+            self.callback(i)
             
         #print "agent 1 cost end", self.agentList[0].cost
        # print "trade costs end", self.tradeCosts

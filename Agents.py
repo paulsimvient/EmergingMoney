@@ -68,21 +68,18 @@ class agentBase(object):
         self.trade_History.append((recieved,given))
         self.utilityHistory.append(utility)
 
-        self.cost[int(recieved)]=(costList[int(recieved)]/2) + (costList[int(recieved)]/(2*((self.recieved[int(recieved)])**c.alpha+1)))
-
-
+      
         if money!= None: 
             _money = int(money)
             _consumed = int(self.goods[c.consumed_good])
             if _money == _consumed:
-                print "out"
+                print "you blew it"
                 
             self.money[_money]+=1 
 
 class simpleAgents(agentBase):
      def __init__(self):
         agentBase.__init__(self)
-
 
 
 

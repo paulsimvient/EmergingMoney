@@ -44,6 +44,9 @@ run_space = False
 #run in real time
 realTime = False
 
+#store when money happens
+moneyHappens = -1 
+
 #legend on
 legend_on = False
 
@@ -135,23 +138,47 @@ def visualize():
                 
     canvas.show()
 
+ 
+def regcb(trial):
+     
+    global moneyHappens
+    
+    if trial % 200 == 0: 
+        
+        goods = em.get_goods_money() 
+        list_goods = goods[1]
+        
+        if len(list_goods) == 0:
+            return
+        
+        list_goods = copy.deepcopy(goods[1])
+        list_goods.sort(reverse=True)
+        
+        highest = list_goods[0]
+        if highest > 20:
+            others = 0
+            for r in list_goods:
+                others+=r
+           
+            if others != 0 and highest/(others*1.0) >= .5 and moneyHappens == -1:
+                moneyHappens = trial
+                
 
-counter = 0
-def callback():
 
-    global counter 
+
+def callback(trial):
+ 
     global trades_per_interval
     global graphOverTime
     
     #visualize data
-    if realTime == True and counter % 500 == 0:
+    if realTime == True and trial % 500 == 0: 
         visualize()
         
     if graphOverTime == TRUE:
         goods = em.get_goods_money()  
         trades_per_interval.append(copy.deepcopy(goods[1]))
- 
-    counter += 1
+  
 
   
 def sortDescend():
@@ -171,7 +198,8 @@ def rps():
 
 def runParameterSpace():
     
-    global em
+    global em 
+    global moneyHappens
     
     numGoods = int(slist[0].var.get())
     numTrials = int(slist[1].var.get())
@@ -188,56 +216,25 @@ def runParameterSpace():
     
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
-            em = EmergingMoney(numGoods, numTrials, i, j, maxCost)
+            em = EmergingMoney(numGoods, numTrials, j, i, maxCost)
+            em.register(regcb)
+            moneyHappens = -1
             em.playGame()
-            visualize()
-            
-            goods = em.get_goods_money() 
-            list_goods = goods[1]
-            
-            if len(list_goods) == 0:
-                continue
-            
-            list_goods = copy.deepcopy(goods[1])
-            list_goods.sort(reverse=True)
-            
-            highest = list_goods[0]
-            others = 0
-            for r in list_goods:
-                others+=r
-                
-            if others != 0 and highest/(others*1.0) >= money_threshold:
-                 print i, j, maxCost, "1"
-            else:
-                 print i, j, maxCost, "0"  
-             
+            visualize() 
+            print i, j, maxCost, moneyHappens 
+          
     
     print "memory, alpha, maxcost (s)"
 
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
             em = EmergingMoney(numGoods, numTrials, j, i, maxCost)
+            em.register(regcb)
+            moneyHappens = -1
             em.playGame()
             visualize()
             
-            goods = em.get_goods_money() 
-            list_goods = goods[1]
-            
-            if len(list_goods) == 0:
-                continue
-            
-            list_goods = copy.deepcopy(goods[1])
-            list_goods.sort(reverse=True)
-            
-            highest = list_goods[0]
-            others = 0
-            for r in list_goods:
-                others+=r
-                
-            if others != 0 and highest/(others*1.0) >= money_threshold:
-                print j, i, maxCost, "1"
-            else:
-                print j, i, maxCost, "0"  
+            print j, i, maxCost, moneyHappens  
     
  
                 
@@ -246,105 +243,48 @@ def runParameterSpace():
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
             em = EmergingMoney(numGoods, numTrials, memory, i, j)
+            em.register(regcb)
+            moneyHappens = -1
             em.playGame()
             visualize()
             
-            goods = em.get_goods_money() 
-            list_goods = goods[1] 
-            
-            list_goods = copy.deepcopy(goods[1])
-            list_goods.sort(reverse=True)
-            
-            highest = list_goods[0]
-            others = 0
-            for r in list_goods:
-                others+=r 
-            
-            if others != 0 and highest/(others*1.0) >= money_threshold:
-                print memory, i, j, "1"
-            else:
-                print memory, i, j, "0"  
+            print memory, i, j,   moneyHappens 
 
     print "memory (s), alpha, maxcost"
                
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
             em = EmergingMoney(numGoods, numTrials, memory, j, i)
+            em.register(regcb)
+            moneyHappens = -1
             em.playGame()
             visualize()
-            
-            goods = em.get_goods_money() 
-            list_goods = goods[1]
-            
-            if len(list_goods) == 0:
-                continue
-            
-            list_goods = copy.deepcopy(goods[1])
-            list_goods.sort(reverse=True)
-            
-            highest = list_goods[0]
-            others = 0
-            for r in list_goods:
-                others+=r 
-                
-            if others != 0 and highest/(others*1.0) >= money_threshold:
-                print memory, j,i, "1"
-            else:
-                print memory, j,i, "0"  
+            print memory, j, i,   moneyHappens
                 
     print "memory , alpha(s), maxcost"
     
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
             em = EmergingMoney(numGoods, numTrials, i, alpha, j)
+            em.register(regcb)
+            moneyHappens = -1
             em.playGame()
             visualize()
             
-            goods = em.get_goods_money() 
-            list_goods = goods[1]
-            
-            if len(list_goods) == 0:
-                continue
-            
-            list_goods = copy.deepcopy(goods[1])
-            list_goods.sort(reverse=True)
-            
-            highest = list_goods[0]
-            others = 0
-            for r in list_goods:
-                others+=r 
-            
-            if others != 0 and highest/(others*1.0) >= money_threshold:
-                print i, alpha, j, "1"
-            else:
-                print i, alpha, j, "0"  
+            print i, alpha, j,moneyHappens
+           
     
     print "memory , alpha(s), maxcost"
                
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
             em = EmergingMoney(numGoods, numTrials, j, alpha, i)
+            em.register(regcb)
+            moneyHappens = -1
             em.playGame()
             visualize()
+            print j, alpha, i, moneyHappens
             
-            goods = em.get_goods_money() 
-            list_goods = goods[1]
-            
-            if len(list_goods) == 0:
-                continue
-            
-            list_goods = copy.deepcopy(goods[1])
-            list_goods.sort(reverse=True)
-            
-            highest = list_goods[0]
-            others = 0
-            for r in list_goods:
-                others+=r
-           
-            if others != 0 and highest/(others*1.0) >= money_threshold:
-                print j, alpha, i,  "1"
-            else:
-                print j, alpha, i,  "0" 
     print "done"
                                         
 def setLegend():
@@ -430,5 +370,4 @@ setLegend()
 init_plot()
  
 Tk.mainloop()
-
 
