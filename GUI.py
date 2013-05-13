@@ -184,9 +184,7 @@ def runParameterSpace():
     
     #money threshold
     money_threshold = .5
-    
     print "memory, alpha, maxcost (s)"
-  
     
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
