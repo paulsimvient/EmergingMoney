@@ -118,9 +118,18 @@ class EmergingMoney():
         if self.callback_function != None:
             self.callback_function(var)
 
+    #simple cost swap
+    def SwapCosts(self, top):  
+        max_v = max(self.costList_unchanging)
+        x = top
+        y = self.costList_unchanging.index(max_v)
+        i = self.costList_unchanging
+        i[x], i[y] = i[y], i[x] 
+         
+               
+
     # this function defines one round of play
     def playRound(self, agent1, agent2):
-
 
         # records the memory of past trades the agent has. The agents look at all combinations of past trades, record the last n she remembers
         def mem_pastTrades():
@@ -142,6 +151,7 @@ class EmergingMoney():
                 return mem_length
 
 
+       
         #compute the probability of being able to trade good agent 1 consumption good for agent 2's carry good next period.
         #This is relevant because if agent 1 trades with agent 2 then agent 2's carry goods becomes agent 1's carry good
         def ProbTradingNext(agent1,agent2):
@@ -288,7 +298,7 @@ class EmergingMoney():
                                     
                 # if the good one agent carries is the other agents consumption good..
                 #.. and vice versa
-                #print 'first', self.costList
+                # 'first', self.costList
                 
                 a1_numberofTrades=self.goodsTraded.count(int(a1_held))
                 a2_numberofTrades=self.goodsTraded.count(int(a2_held))
