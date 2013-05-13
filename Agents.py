@@ -75,7 +75,7 @@ class agentBase(object):
             _money = int(money)
             _consumed = int(self.goods[c.consumed_good])
             if _money == _consumed:
-                print "you blew it"
+                print "out"
                 
             self.money[_money]+=1 
 

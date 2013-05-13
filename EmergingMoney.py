@@ -76,8 +76,7 @@ class EmergingMoney():
         #list of costs assigned to each agent
         for i in range(0, c.numOfGoods):
             self.costList.append(random.uniform(0,c.max_fixedCost))
-
-        print self.costList
+ 
         
          # We generate a list of agents
         self.agentList = [ag.simpleAgents() for count in xrange(c.numOfBaseAgents)]
@@ -152,6 +151,8 @@ class EmergingMoney():
             if b<c.memory:
                 return random.uniform(0,1)
             else:
+                if b == 0:
+                    return 0
                 prob_tradeNextPeriod=PastTrades/b
                 return prob_tradeNextPeriod
  
@@ -210,7 +211,7 @@ class EmergingMoney():
                 val=1-CostTradingNext(agent1,agent2,True)
                 
                 #time discount factor
-                prob_val = (prob*val)/(1-c.beta)
+                prob_val = (prob*val) 
             
                 tradeValue= prob_val-CostNow(agent1,agent2)
                 return tradeValue
@@ -223,7 +224,7 @@ class EmergingMoney():
             val=1-CostTradingNext(agent1,agent2,False)
             
             #time discount factor
-            prob_val = (prob*val)/(1-c.beta)
+            prob_val = (prob*val) 
             No_tradeValue=prob_val
            
             return No_tradeValue

@@ -27,6 +27,4 @@ countGoods_list=0
 
 #curvature determining how quickly increase trade reduces the cost of a good
 alpha=0.5
-
-#time discount factor
-beta=0.5
+ 
