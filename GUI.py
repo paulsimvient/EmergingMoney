@@ -109,6 +109,9 @@ def visualize():
     global em 
     global mHappens
 
+    #trials before render
+    visualize_increment = 150
+    
     a.clear() 
     
     if em == None:
@@ -140,7 +143,7 @@ def visualize():
         for r in range(0, len(l_items)):
             y = [] 
             x = []
-            for i in range(0, len(trades_per_interval), 1000):
+            for i in range(0, len(trades_per_interval), visualize_increment):
                 x.append(i) 
                 y.append(trades_per_interval[i][l_items[r]])
                  
@@ -444,7 +447,6 @@ setLegend()
 cb = Checkbutton(master=root, text="disappear money", command = disappearMoney)
 cb.pack(side=Tk.TOP) 
 #cb.select()
- 
  
 
 init_plot()

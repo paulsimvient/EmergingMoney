@@ -116,7 +116,7 @@ class EmergingMoney():
 
     def callback(self, var):
         if self.callback_function != None:
-            self.callback_function(var)
+            return self.callback_function(var)
 
     #simple cost swap
     def SwapCosts(self, top):  
@@ -126,6 +126,13 @@ class EmergingMoney():
         i = self.costList_unchanging
         i[x], i[y] = i[y], i[x] 
         
+    def Inflation(self, top):
+
+        inflationRate = .001 
+        x = top
+        i = self.costList_unchanging
+        i[x] += inflationRate
+    
     def DisappearGood(self, good):
         good_list = []
         for i in range(0, c.numOfGoods):
@@ -453,7 +460,7 @@ class EmergingMoney():
         record_Outcomes(agent1,agent2)
        
        
-
+        
     def playGame(self):
 
         for i in range(c.numofRounds):
@@ -468,7 +475,9 @@ class EmergingMoney():
             self.playRound(p1,p2)
 
             #callback function if necessary
-            self.callback(i)
+            cb = self.callback(i)
+            if cb == False:
+                break
             
         #print "agent 1 cost end", self.agentList[0].cost
        # print "trade costs end", self.tradeCosts
