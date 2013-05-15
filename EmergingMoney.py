@@ -125,8 +125,20 @@ class EmergingMoney():
         y = self.costList_unchanging.index(max_v)
         i = self.costList_unchanging
         i[x], i[y] = i[y], i[x] 
-         
-               
+        
+    def DisappearGood(self, good):
+        good_list = []
+        for i in range(0, c.numOfGoods):
+            if i != good:
+                good_list.append(str(i))
+                
+        for j in self.agentList:
+            replace = random.randint(0,len(good_list)-1)
+            for k in range(0, len(j.goods)):
+                if j.goods[k] == str(good):
+                    j.goods[k] = good_list[replace]
+                     
+        
 
     # this function defines one round of play
     def playRound(self, agent1, agent2):

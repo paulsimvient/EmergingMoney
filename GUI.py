@@ -35,27 +35,35 @@ trades_per_interval = []
 #sort items
 sort = False
 
+#plot the slope
+plot_slope = False
+
+#disappear good
+disappearing_money = False
+
+#swap costs if money emerges
+swap_money_emerges = False
+
+
 #text output
 log = None
 
 #run param space
 run_space = False
 
-#swap costs if money emerges
-swap_money_emerges = False
-
+ 
 #run in real time
-realTime = False
-
-#store when money happens
-moneyHappens = -1 
-
+realTime = True
+  
 #legend on
 legend_on = False
 
+#when money happens 
+mHappens = []
+
 #money threshold
 money_threshold = .65
-
+ 
 #graph over time
 graphOverTime = True
  
@@ -89,7 +97,7 @@ def init_plot():
     canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
  
     slist.append(Indicator(master=root, label='Number of Goods', value=10, f = 0, t = 100))
-    slist.append(Indicator(master=root, label='Number of Rounds (per run)', value=500000, f = 0, t = 500000))
+    slist.append(Indicator(master=root, label='Number of Rounds (per run)', value=300000, f = 0, t = 5000000))
     slist.append(Indicator(master=root, label='Memory', value=42, f = 0, t = 100))
     slist.append(Indicator(master=root, label='Alpha %', value=77, f = 0, t = 100))
     slist.append(Indicator(master=root, label='maxCost %', value=10, f = 0, t = 100))
@@ -98,7 +106,8 @@ def init_plot():
 
 def visualize():
 
-    global em
+    global em 
+    global mHappens
 
     a.clear() 
     
@@ -131,7 +140,7 @@ def visualize():
         for r in range(0, len(l_items)):
             y = [] 
             x = []
-            for i in range(0, len(trades_per_interval)):
+            for i in range(0, len(trades_per_interval), 1000):
                 x.append(i) 
                 y.append(trades_per_interval[i][l_items[r]])
                  
@@ -140,15 +149,35 @@ def visualize():
         #if the legend is on
         if legend_on == True:
             a.legend(loc='upper left', prop = fontP) 
+            
+        #moneyHappens, numGoods_when_money_occurs
+        for i in mHappens:
+            a.annotate(' ', xy=(i[0], i[1]), xytext=( i[0], i[1]+50),
+                        arrowprops=dict(facecolor='black', shrink=0.0025),
+                        )            
+
+        #now plot slope
+        if plot_slope == True: 
+            y = [] 
+            x = []
+            for i in range(0, len(trades_per_interval), c.numofRounds/10):
+                x.append(i) 
+                y.append(trades_per_interval[i][mHappens[0][2]])            
+    
+            slope,intercept=np.polyfit(x,y,1) 
+            a.plot(x,y,'--')     
          
                 
     canvas.show()
 
  
 def regcb(trial):
-     
-    global moneyHappens
-    global money_threshold
+      
+    global money_threshold 
+    global mHappens
+    global swap_money_emerges
+    global disappearing_money
+    
     
     if trial % 200 == 0: 
         
@@ -160,27 +189,36 @@ def regcb(trial):
         
         list_goods = copy.deepcopy(goods[1])
         list_goods.sort(reverse=True)
-        
+         
         #top two
-        highest = list_goods[0] + list_goods[1]
+        highest = list_goods[0] #+ list_goods[1]
         if highest > 20:
             others = 0
             for r in list_goods:
                 others+=r
            
-            if others != 0 and highest/(others*1.0) >= money_threshold and moneyHappens == -1:
-                print "yay! money"
-                index = goods[1].index(list_goods[0])
-                
-                #just for fun, what happens when you swap costs if it emerges
-                if swap_money_emerges:
-                    em.SwapCosts(index)
-                
-                moneyHappens = trial
-                
+            what_good = goods[1].index(list_goods[0])
+            
+            l = len(mHappens)
+            if l != 0:
+                last = mHappens[l-1]
+                if last[2] == what_good:
+                    return            
 
-
-
+            if others != 0 and highest/(others*1.0) >= money_threshold:
+   
+                print "money emerges at trial", trial
+              
+                #set money happening 
+                mHappens.append( (trial,list_goods[0], what_good) )
+              
+                if swap_money_emerges == True:
+                    em.SwapCosts(what_good)
+                    
+                if disappearing_money == True:
+                    em.DisappearGood(what_good)                    
+            
+ 
 def callback(trial):
  
     global trades_per_interval
@@ -213,11 +251,12 @@ def rps():
     global run_space
     run_space = not run_space
     
+ 
+    
 
 def runParameterSpace():
     
-    global em 
-    global moneyHappens
+    global em  
     
     numGoods = int(slist[0].var.get())
     numTrials = int(slist[1].var.get())
@@ -234,7 +273,7 @@ def runParameterSpace():
     for i in range(0,100,increment): 
         for j in range(0,100,increment): 
             em = EmergingMoney(numGoods, numTrials, i, (j*.010), maxCost)
-            em.register(regcb)
+            em.register(regcb) 
             moneyHappens = -1
             em.playGame()
             visualize() 
@@ -308,17 +347,27 @@ def swapMoney():
     global swap_money_emerges
     swap_money_emerges = not swap_money_emerges
           
+def disappearMoney():
+    global disappearing_money
+    disappearing_money = not disappearing_money
+    
+    
 def setLegend():
     global legend_on
     legend_on = not legend_on
     visualize()    
     
+def setSlope():
+    global plot_slope
+    plot_slope = not plot_slope
+    visualize()
+    
+    
 def run():
 
     global em
     global counter
-    global trades_per_interval
-    global moneyHappens
+    global trades_per_interval 
     
     #run param space
     if run_space == True:
@@ -339,17 +388,14 @@ def run():
     maxCost = (slist[4].var.get()/100.0)
      
      
-    em = EmergingMoney( numGoods, numTrials,memory, alpha,maxCost)
-    moneyHappens = -1
+    em = EmergingMoney( numGoods, numTrials,memory, alpha,maxCost) 
     #set if real time true
     if realTime == True or graphOverTime == True:
         em.register(callback)
 
     em.playGame()
     visualize()
-    
-    print numGoods, numTrials, memory, alpha,maxCost, "money", moneyHappens
-    
+     
     goods = em.get_goods_money() 
     list_goods = goods[1]
     print list_goods
@@ -378,6 +424,7 @@ button.pack(side=Tk.RIGHT)
 #do real time analysis
 cb = Checkbutton(master=root, text="Real Time Analysis", command = reviewRealTime)
 cb.pack(side=Tk.RIGHT) 
+cb.select()
 
 #plot trades
 cb = Checkbutton(master=root, text="Run Parameter Space", command = rps)
@@ -393,6 +440,12 @@ cb.pack(side=Tk.RIGHT)
 cb = Checkbutton(master=root, text="swap costs when money emerges", command = swapMoney)
 cb.pack(side=Tk.TOP) 
 setLegend()
+
+cb = Checkbutton(master=root, text="disappear money", command = disappearMoney)
+cb.pack(side=Tk.TOP) 
+#cb.select()
+ 
+ 
 
 init_plot()
  
