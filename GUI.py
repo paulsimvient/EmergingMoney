@@ -6,6 +6,7 @@ from EmergingMoney import *
 from constants import *
 from matplotlib.font_manager import FontProperties
 import csv
+from threading import Thread
 
 import copy
 
@@ -38,6 +39,9 @@ sort = False
 #plot the slope
 plot_slope = False
 
+#running
+running = False
+
 #disappear good
 disappearing_money = False
 
@@ -50,6 +54,9 @@ log = None
 
 #run param space
 run_space = False
+
+#do inflation
+do_inflation = False
 
  
 #run in real time
@@ -100,9 +107,8 @@ def init_plot():
     slist.append(Indicator(master=root, label='Number of Rounds (per run)', value=300000, f = 0, t = 5000000))
     slist.append(Indicator(master=root, label='Memory', value=42, f = 0, t = 100))
     slist.append(Indicator(master=root, label='Alpha %', value=77, f = 0, t = 100))
-    slist.append(Indicator(master=root, label='maxCost %', value=10, f = 0, t = 100))
+    slist.append(Indicator(master=root, label='Cost Variation %', value=10, f = 0, t = 100))
     
-
 
 def visualize():
 
@@ -180,6 +186,8 @@ def regcb(trial):
     global mHappens
     global swap_money_emerges
     global disappearing_money
+    global do_inflation
+    
     
     
     if trial % 200 == 0: 
@@ -201,6 +209,10 @@ def regcb(trial):
                 others+=r
            
             what_good = goods[1].index(list_goods[0])
+        
+            if others != 0 and highest/(others*1.0) >= money_threshold:
+                if do_inflation == True:
+                    em.Inflation(what_good)             
             
             l = len(mHappens)
             if l != 0:
@@ -219,13 +231,15 @@ def regcb(trial):
                     em.SwapCosts(what_good)
                     
                 if disappearing_money == True:
-                    em.DisappearGood(what_good)                    
+                    em.DisappearGood(what_good)    
+                
             
  
 def callback(trial):
  
     global trades_per_interval
     global graphOverTime
+    global running 
     
     #visualize data
     if realTime == True and trial % 500 == 0: 
@@ -237,6 +251,11 @@ def callback(trial):
         
     #check for money
     regcb(trial)
+    
+    if running == False:
+        return False
+    else:
+        return True
   
 
   
@@ -354,6 +373,9 @@ def disappearMoney():
     global disappearing_money
     disappearing_money = not disappearing_money
     
+def inflation():
+    global do_inflation
+    do_inflation = not do_inflation
     
 def setLegend():
     global legend_on
@@ -364,6 +386,18 @@ def setSlope():
     global plot_slope
     plot_slope = not plot_slope
     visualize()
+   
+ 
+def go(): 
+    global running
+    running = True
+    
+    t = Thread(target=run, args=())
+    t.start() 
+
+def stop(): 
+    global running
+    running = False
     
     
 def run():
@@ -371,6 +405,9 @@ def run():
     global em
     global counter
     global trades_per_interval 
+    global mHappens
+    
+    mHappens = []
     
     #run param space
     if run_space == True:
@@ -404,7 +441,7 @@ def run():
     print list_goods
     
 
-
+ 
 #do everything
 root = Tk.Tk()
 root.wm_title("Emergence of Money")
@@ -417,11 +454,11 @@ a = f.add_subplot(111)
 canvas.show()
 canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-button = Tk.Button(master=root, text='Set', command = run)
+button = Tk.Button(master=root, text='Set', command = go)
 button.pack(side=Tk.RIGHT)
 
 canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
-button = Tk.Button(master=root, text='Quit', command=sys.exit)
+button = Tk.Button(master=root, text='Stop', command=stop)
 button.pack(side=Tk.RIGHT)
 
 #do real time analysis
@@ -447,9 +484,15 @@ setLegend()
 cb = Checkbutton(master=root, text="disappear money", command = disappearMoney)
 cb.pack(side=Tk.TOP) 
 #cb.select()
- 
+
+cb = Checkbutton(master=root, text="Inflation", command = inflation)
+cb.pack(side=Tk.TOP) 
+#cb.select() 
 
 init_plot()
- 
-Tk.mainloop()
+
+
+Tk.mainloop()    
+
+
 
